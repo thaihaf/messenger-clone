@@ -2,18 +2,14 @@
 import AuthSocialButton from "@/components/AuthSocialButton/AuthSocialButton";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
+import { AuthEndPoint } from "@/constants/auth/auth.endpoints";
+import { SocialActionsValues, VariantValues } from "@/constants/constants";
+import axios from "axios";
 import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { BsGithub, BsGoogle } from "react-icons/bs";
-
-const VariantValues = {
-  LOGIN: "LOGIN",
-  REGISTER: "REGISTER",
-};
-const SocialActionsValues = {
-  GITGUB: "github",
-  GOOGLE: "google",
-};
+import { toast } from "react-hot-toast";
+import { signIn } from "next-auth/react";
 
 export default function AuthForm() {
   const [variant, setVariant] = useState<String>(VariantValues.LOGIN);
@@ -43,16 +39,85 @@ export default function AuthForm() {
     setIsLoading(true);
 
     if (variant === VariantValues.REGISTER) {
-      // axios call
+      axios
+        .post(AuthEndPoint.REGISTER, data)
+        .then((response) => {
+          toast.success("Register successfull", {
+            duration: 6000,
+            icon: "👏",
+            style: {
+              minWidth: "250px",
+            },
+          });
+        })
+        .catch((error) => {
+          toast.error(error.response.data, {
+            duration: 6000,
+            icon: "🔥",
+            style: {
+              minWidth: "250px",
+            },
+          });
+        })
+        .finally(() => setIsLoading(false));
     }
+
     if (variant === VariantValues.LOGIN) {
-      // nextauth signin
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Invalid credentials", {
+              duration: 6000,
+              icon: "👏",
+              style: {
+                minWidth: "250px",
+              },
+            });
+          }
+
+          if (callback?.ok && !callback?.error) {
+            toast.success("Logged in!", {
+              duration: 6000,
+              icon: "🔥",
+              style: {
+                minWidth: "250px",
+              },
+            });
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 
   const socialAction = (action: string) => {
     setIsLoading(true);
-    // nextauth social sign in
+
+    signIn(action, { redirect: false })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid credentials", {
+            duration: 6000,
+            icon: "👏",
+            style: {
+              minWidth: "250px",
+            },
+          });
+        }
+
+        if (callback?.ok && !callback?.error) {
+          toast.success("Logged in!", {
+            duration: 6000,
+            icon: "🔥",
+            style: {
+              minWidth: "250px",
+            },
+          });
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
   return (
     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
