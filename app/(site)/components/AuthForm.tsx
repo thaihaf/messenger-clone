@@ -5,15 +5,25 @@ import Input from "@/components/Input/Input";
 import { AuthEndPoint } from "@/constants/auth/auth.endpoints";
 import { SocialActionsValues, VariantValues } from "@/constants/constants";
 import axios from "axios";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { BsGithub, BsGoogle } from "react-icons/bs";
 import { toast } from "react-hot-toast";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Paths } from "@/constants/paths";
 
 export default function AuthForm() {
+  const session = useSession();
+  const router = useRouter();
   const [variant, setVariant] = useState<String>(VariantValues.LOGIN);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push(Paths.USERS);
+    }
+  }, [router, session?.status]);
 
   const toggleVariant = useCallback(() => {
     if (variant === VariantValues.LOGIN) {
@@ -44,16 +54,15 @@ export default function AuthForm() {
         .then((response) => {
           toast.success("Register successfull", {
             duration: 6000,
-            icon: "👏",
             style: {
               minWidth: "250px",
             },
           });
+          signIn("credentials", data);
         })
         .catch((error) => {
           toast.error(error.response.data, {
             duration: 6000,
-            icon: "🔥",
             style: {
               minWidth: "250px",
             },
@@ -71,7 +80,6 @@ export default function AuthForm() {
           if (callback?.error) {
             toast.error("Invalid credentials", {
               duration: 6000,
-              icon: "👏",
               style: {
                 minWidth: "250px",
               },
@@ -81,11 +89,11 @@ export default function AuthForm() {
           if (callback?.ok && !callback?.error) {
             toast.success("Logged in!", {
               duration: 6000,
-              icon: "🔥",
               style: {
                 minWidth: "250px",
               },
             });
+            router.push(Paths.USERS);
           }
         })
         .finally(() => setIsLoading(false));
@@ -95,12 +103,11 @@ export default function AuthForm() {
   const socialAction = (action: string) => {
     setIsLoading(true);
 
-    signIn(action, { redirect: false })
+    signIn(action.toLowerCase(), { redirect: false })
       .then((callback) => {
         if (callback?.error) {
           toast.error("Invalid credentials", {
             duration: 6000,
-            icon: "👏",
             style: {
               minWidth: "250px",
             },
@@ -110,7 +117,6 @@ export default function AuthForm() {
         if (callback?.ok && !callback?.error) {
           toast.success("Logged in!", {
             duration: 6000,
-            icon: "🔥",
             style: {
               minWidth: "250px",
             },
