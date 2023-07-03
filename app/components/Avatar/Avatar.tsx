@@ -2,7 +2,7 @@
 
 import { User } from "@prisma/client";
 import Image from "next/image";
-import avatarImage from "public/image/logo.png";
+import avatarImage from "public/image/avatar.jpg";
 
 interface AvatarProps {
   user?: User;
