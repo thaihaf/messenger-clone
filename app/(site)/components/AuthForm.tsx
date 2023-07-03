@@ -2,7 +2,6 @@
 import AuthSocialButton from "@/components/AuthSocialButton/AuthSocialButton";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
-import { AuthEndPoint } from "@/constants/auth/auth.endpoints";
 import { SocialActionsValues, VariantValues } from "@/constants/constants";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import { toast } from "react-hot-toast";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Paths } from "@/constants/paths";
+import { EndPoint } from "@/constants/endpoints";
 
 export default function AuthForm() {
   const session = useSession();
@@ -50,7 +50,7 @@ export default function AuthForm() {
 
     if (variant === VariantValues.REGISTER) {
       axios
-        .post(AuthEndPoint.REGISTER, data)
+        .post(EndPoint.REGISTER, data)
         .then((response) => {
           toast.success("Register successfull", {
             duration: 6000,
