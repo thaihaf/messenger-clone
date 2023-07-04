@@ -29,22 +29,6 @@ export default function ConversationBox({
 
     return messages[messages.length - 1];
   }, [data.messages]);
-
-  const userEmail = useMemo(
-    () => session.data?.user?.email,
-    [session.data?.user?.email]
-  );
-
-  const hasSeen = useMemo(() => {
-    if (!lastMessage) return false;
-
-    const seenArray = lastMessage.seen || [];
-
-    if (!userEmail) return false;
-
-    return seenArray.filter((user) => user.email === userEmail).length !== 0;
-  }, [lastMessage, userEmail]);
-
   const lastMessageText = useMemo(() => {
     if (lastMessage?.image) {
       return "Seen an image";
@@ -56,6 +40,20 @@ export default function ConversationBox({
 
     return "Started an conversation";
   }, [lastMessage]);
+
+  const userEmail = useMemo(
+    () => session.data?.user?.email,
+    [session.data?.user?.email]
+  );
+  const hasSeen = useMemo(() => {
+    if (!lastMessage) return false;
+
+    const seenArray = lastMessage.seen || [];
+
+    if (!userEmail) return false;
+
+    return seenArray.filter((user) => user.email === userEmail).length !== 0;
+  }, [lastMessage, userEmail]);
 
   return (
     <div
