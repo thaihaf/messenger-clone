@@ -12,6 +12,7 @@ interface HeaderProps {
     users: User[];
   };
 }
+
 export default function Header({ conversation }: HeaderProps) {
   const otherUser = useOtherUser(conversation);
 
