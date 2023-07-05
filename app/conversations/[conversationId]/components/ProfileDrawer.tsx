@@ -3,11 +3,11 @@
 import useOtherUser from "@/hooks/useOtherUser";
 import { Conversation, User } from "@prisma/client";
 import { format } from "date-fns";
-import { Fragment, useMemo } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import { IoClose, IoTrash } from "react-icons/io5";
 import Avatar from "@/components/Avatar/Avatar";
-import Modal from "@/components/Modal/Modal";
+import ConfirmModal from "./ConfirmModal";
 interface ProfileDrawerProps {
   data: Conversation & { users: User[] };
   isOpen: boolean;
@@ -20,6 +20,7 @@ export default function ProfileDrawer({
   onClose,
 }: ProfileDrawerProps) {
   const otherUser = useOtherUser(data);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const joinedDate = useMemo(
     () => format(new Date(otherUser.createdAt), "PP"),
@@ -40,7 +41,13 @@ export default function ProfileDrawer({
   );
   return (
     <>
-      <Modal />
+      
+
+      <ConfirmModal
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+      />
+
       <Transition.Root show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={onClose}>
           <Transition.Child
@@ -86,11 +93,11 @@ export default function ProfileDrawer({
                       <div className="relative mt-6 flex-1 px-4 sm:px-6">
                         <div className="flex flex-col items-center">
                           <div className="mb-2">
-                            {/*{data.isGroup ? (
-                            <AvatarGroup users={data.users} />
-                          ) : (*/}
+                            {/* {data.isGroup ? (
+                              <AvatarGroup users={data.users} />
+                            ) : ( */}
                             <Avatar user={otherUser} />
-                            {/*)}*/}
+                            {/* )} */}
                           </div>
                           <div>{title}</div>
                           <div className="text-sm text-gray-500">
@@ -98,7 +105,7 @@ export default function ProfileDrawer({
                           </div>
                           <div className="flex gap-10 my-8">
                             <div
-                              //onClick={() => setConfirmOpen(true)}
+                              onClick={() => setConfirmOpen(true)}
                               className="flex flex-col gap-3 items-center cursor-pointer hover:opacity-75"
                             >
                               <div className="w-10 h-10 bg-neutral-100 rounded-full flex items-center justify-center">
