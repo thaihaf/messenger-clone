@@ -23,8 +23,8 @@ export default function ProfileDrawer({
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const joinedDate = useMemo(
-    () => format(new Date(otherUser.createdAt), "PP"),
-    [otherUser.createdAt]
+    () => format(new Date(otherUser?.createdAt || new Date()), "PP"),
+    [otherUser?.createdAt]
   );
 
   const statusText = useMemo(() => {
@@ -36,13 +36,11 @@ export default function ProfileDrawer({
   }, [data.isGroup, data.users.length]);
 
   const title = useMemo(
-    () => data.name || otherUser.name,
-    [data.name, otherUser.name]
+    () => data.name || otherUser?.name,
+    [data.name, otherUser?.name]
   );
   return (
     <>
-      
-
       <ConfirmModal
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -166,7 +164,7 @@ export default function ProfileDrawer({
                                   sm:col-span-2
                                 "
                                   >
-                                    {otherUser.email}
+                                    {otherUser?.email}
                                   </dd>
                                 </div>
                               )}
