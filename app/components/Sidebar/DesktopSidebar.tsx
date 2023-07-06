@@ -5,6 +5,7 @@ import { useState } from "react";
 import DesktopItem from "./DesktopItem";
 import { User } from "@prisma/client";
 import Avatar from "../Avatar/Avatar";
+import SettingsModal from "./SettingsModal";
 
 interface DesktopSidebarProps {
   currentUser: User;
@@ -14,8 +15,9 @@ export default function DesktopSidebar({ currentUser }: DesktopSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      className="
+    <>
+      <div
+        className="
   hidden
   lg:fixed
   lg:inset-y-0
@@ -31,56 +33,63 @@ export default function DesktopSidebar({ currentUser }: DesktopSidebarProps) {
   lg:flex-col
   justify-between
   "
-    >
-      <nav
-        className="
+      >
+        <nav
+          className="
       mt-4
       flex
       flex-col
       justify-center
       "
-      >
-        <ul
-          role="list"
-          className="
+        >
+          <ul
+            role="list"
+            className="
         flex
         flex-col
         items-center
         space-y-1
         "
-        >
-          {routes.map((item) => (
-            <DesktopItem
-              key={item.label}
-              href={item.href}
-              label={item.label}
-              icon={item.icon}
-              onClick={item.onClick}
-            />
-          ))}
-        </ul>
-      </nav>
+          >
+            {routes.map((item) => (
+              <DesktopItem
+                key={item.label}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                onClick={item.onClick}
+              />
+            ))}
+          </ul>
+        </nav>
 
-      <nav
-        className="
+        <nav
+          className="
       mt-4
       flex
       flex-col
       justify-center
       items-center
       "
-      >
-        <div
-          className="
+        >
+          <div
+            className="
         cursor-pointer
         hover:opacity-75
         transition
         "
-          onClick={() => setIsOpen(true)}
-        >
-          <Avatar user={currentUser} />
-        </div>
-      </nav>
-    </div>
+            onClick={() => setIsOpen(true)}
+          >
+            <Avatar user={currentUser} />
+          </div>
+        </nav>
+      </div>
+
+      <SettingsModal
+        currentUser={currentUser}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
+    </>
   );
 }
