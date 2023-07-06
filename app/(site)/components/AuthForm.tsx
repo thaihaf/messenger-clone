@@ -1,7 +1,7 @@
 "use client";
 import AuthSocialButton from "@/components/AuthSocialButton/AuthSocialButton";
 import Button from "@/components/Button/Button";
-import Input from "@/components/Input/Input";
+import Input from "@/components/Inputs/Input";
 import { SocialActionsValues, VariantValues } from "@/constants/constants";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";

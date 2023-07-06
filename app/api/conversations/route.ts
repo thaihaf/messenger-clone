@@ -1,17 +1,18 @@
-import getCurrentUser from "@/actions/getCurrentUser";
-import prisma from "@/lib/prismadb";
 import { NextResponse } from "next/server";
+
+import prisma from "@/lib/prismadb";
+import getCurrentUser from "@/actions/getCurrentUser";
 
 export async function POST(request: Request) {
   try {
     const currentUser = await getCurrentUser();
     const body = await request.json();
-
     const { userId, isGroup, members, name } = body;
 
     if (!currentUser?.id || !currentUser?.email) {
-      return new NextResponse("Unaithorized", { status: 401 });
+      return new NextResponse("Unauthorized", { status: 400 });
     }
+
     if (isGroup && (!members || members.length < 2 || !name)) {
       return new NextResponse("Invalid data", { status: 400 });
     }
@@ -26,7 +27,9 @@ export async function POST(request: Request) {
               ...members.map((member: { value: string }) => ({
                 id: member.value,
               })),
-              { id: currentUser.id },
+              {
+                id: currentUser.id,
+              },
             ],
           },
         },
@@ -34,6 +37,13 @@ export async function POST(request: Request) {
           users: true,
         },
       });
+
+      // Update all connections with new conversation
+      //newConversation.users.forEach((user) => {
+      //  if (user.email) {
+      //    pusherServer.trigger(user.email, "conversation:new", newConversation);
+      //  }
+      //});
 
       return NextResponse.json(newConversation);
     }
@@ -55,20 +65,22 @@ export async function POST(request: Request) {
       },
     });
 
-    const signleConversations = existingConversations[0];
+    const singleConversation = existingConversations[0];
 
-    if (signleConversations) {
-      return NextResponse.json(signleConversations);
+    if (singleConversation) {
+      return NextResponse.json(singleConversation);
     }
 
-    const newConversations = await prisma.conversation.create({
+    const newConversation = await prisma.conversation.create({
       data: {
         users: {
           connect: [
             {
               id: currentUser.id,
             },
-            { id: userId },
+            {
+              id: userId,
+            },
           ],
         },
       },
@@ -77,8 +89,15 @@ export async function POST(request: Request) {
       },
     });
 
-     return NextResponse.json(signleConversations);
-  } catch (error: any) {
+    // Update all connections with new conversation
+    //newConversation.users.map((user) => {
+    //  if (user.email) {
+    //    pusherServer.trigger(user.email, "conversation:new", newConversation);
+    //  }
+    //});
+
+    return NextResponse.json(newConversation);
+  } catch (error) {
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
