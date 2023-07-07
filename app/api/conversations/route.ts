@@ -10,8 +10,9 @@ export async function POST(request: Request) {
     const { userId, isGroup, members, name } = body;
 
     if (!currentUser?.id || !currentUser?.email) {
-      return new NextResponse("Unaithorized", { status: 401 });
+      return new NextResponse("Unauthorized", { status: 400 });
     }
+
     if (isGroup && (!members || members.length < 2 || !name)) {
       return new NextResponse("Invalid data", { status: 400 });
     }
@@ -77,7 +78,7 @@ export async function POST(request: Request) {
       },
     });
 
-     return NextResponse.json(signleConversations);
+    return NextResponse.json(newConversations);
   } catch (error: any) {
     return new NextResponse("Internal Error", { status: 500 });
   }
