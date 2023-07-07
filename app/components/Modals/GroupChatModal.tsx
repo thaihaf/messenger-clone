@@ -1,5 +1,9 @@
 "use client";
 
+import Button from "@/components/Button/Button";
+import Input from "@/components/Inputs/Input";
+import Select from "@/components/Inputs/Select";
+import Modal from "@/components/Modals/Modal";
 import { EndPoint } from "@/constants/endpoints";
 import { User } from "@prisma/client";
 import axios from "axios";
@@ -7,23 +11,18 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import Modal from "../Modals/Modal";
-import Input from "../Inputs/Input";
-import Image from "next/image";
-import { CldUploadButton } from "next-cloudinary";
-import avatarImg from "public/image/avatar.jpg";
-import Button from "../Button/Button";
 
-interface SettingsModalProps {
-  currentUser: User;
+interface GroupChatModalProps {
+  users: User[];
   isOpen: boolean;
   onClose: () => void;
 }
-export default function SettingsModal({
-  currentUser,
+
+export default function GroupChatModal({
+  users = [],
   isOpen,
   onClose,
-}: SettingsModalProps) {
+}: GroupChatModalProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,38 +34,39 @@ export default function SettingsModal({
     formState: { errors },
   } = useForm<FieldValues>({
     defaultValues: {
-      name: currentUser?.name,
-      image: currentUser?.image,
+      name: "",
+      members: [],
     },
   });
 
-  const image = watch("image");
+  const members = watch("members");
 
-  const handleUpload = (result: any) => {
-    setValue("image", result?.info?.secure_url, { shouldValidate: true });
-  };
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
 
     axios
-      .post(EndPoint.SETTING, data)
+      .post("/api/conversations", {
+        ...data,
+        isGroup: true,
+      })
       .then(() => {
         router.refresh();
         onClose();
       })
-      .catch((error) => toast.error(error.message))
+      .catch(() => toast.error("Something went wrong!"))
       .finally(() => setIsLoading(false));
   };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base front-semibold leading-7 text-gray-900">
-              Profile
+              Create a group chat
             </h2>
             <p className="mt-1 text-sm leading-6 text-gray-600">
-              Edit your public information
+              Create a chat with more than 2 people.
             </p>
 
             <div className="mt-10 flex flex-col gap-y-8">
@@ -79,29 +79,16 @@ export default function SettingsModal({
                 register={register}
               />
 
-              <div>
-                <label className="blocl text-sm font-medium leading-6 text-gray-900">
-                  Photo
-                </label>
-                <div className="mt-2 flex items-center gap-x-3">
-                  <Image
-                    width="48"
-                    height="48"
-                    className="rounded-full"
-                    src={image || currentUser?.image || avatarImg}
-                    alt="avatar"
-                  />
-                  <CldUploadButton
-                    options={{ maxFiles: 1 }}
-                    onUpload={handleUpload}
-                    uploadPreset="sqpf0wpm"
-                  >
-                    <Button disabled={isLoading} secondary type="button">
-                      Change
-                    </Button>
-                  </CldUploadButton>
-                </div>
-              </div>
+              <Select
+                disabled={isLoading}
+                label="Members"
+                options={users.map((user) => ({
+                  value: user.id,
+                  label: user.name,
+                }))}
+                onChange={(value) => setValue("members", value)}
+                value={members}
+              />
             </div>
           </div>
 
@@ -110,7 +97,7 @@ export default function SettingsModal({
               Cancel
             </Button>
             <Button disabled={isLoading} type="submit">
-              Save
+              Create
             </Button>
           </div>
         </div>
