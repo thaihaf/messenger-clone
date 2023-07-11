@@ -22,7 +22,7 @@ export default function LoadingModal() {
       fixed
       inset-0
       bg-gray-100
-      bg-opacity-30
+      bg-opacity-40
       transition-opacity
       "
           />
