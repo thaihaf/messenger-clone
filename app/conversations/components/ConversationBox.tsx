@@ -1,4 +1,4 @@
-import Avatar from "@/components/Avatar/Avatar";
+import Avatar from "@/components/Avatars/Avatar";
 import { Paths } from "@/constants/paths";
 import { FullConversationType } from "@/constants/types";
 import useOtherUser from "@/hooks/useOtherUser";
@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import React, { useCallback, useMemo } from "react";
+import AvatarGroup from "@/components/Avatars/AvatarGroup";
 
 interface ConversationBoxProps {
   data: FullConversationType;
@@ -74,7 +75,11 @@ export default function ConversationBox({
         selected ? "bg-neutral-100" : "bg-white"
       )}
     >
-      <Avatar user={otherUser} />
+      {data.isGroup ? (
+        <AvatarGroup users={data.users} />
+      ) : (
+        <Avatar user={otherUser} />
+      )}
 
       <div className="min-w-0 flex-1">
         <div className="focus:outline-none">

@@ -6,8 +6,10 @@ import { format } from "date-fns";
 import { Fragment, useMemo, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import { IoClose, IoTrash } from "react-icons/io5";
-import Avatar from "@/components/Avatar/Avatar";
+import Avatar from "@/components/Avatars/Avatar";
 import ConfirmModal from "./ConfirmModal";
+import AvatarGroup from "@/components/Avatars/AvatarGroup";
+import useActiveList from "@/hooks/useActiveList";
 interface ProfileDrawerProps {
   data: Conversation & { users: User[] };
   isOpen: boolean;
@@ -22,6 +24,9 @@ export default function ProfileDrawer({
   const otherUser = useOtherUser(data);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+   const { members } = useActiveList();
+   const isActive = members.indexOf(otherUser?.email!) !== -1;
+
   const joinedDate = useMemo(
     () => format(new Date(otherUser?.createdAt || new Date()), "PP"),
     [otherUser?.createdAt]
@@ -32,8 +37,8 @@ export default function ProfileDrawer({
       return `${data.users.length} members`;
     }
 
-    return "Active";
-  }, [data.isGroup, data.users.length]);
+    return isActive ? "Active" : "Offline";
+  }, [data.isGroup, data.users.length, isActive]);
 
   const title = useMemo(
     () => data.name || otherUser?.name,
@@ -91,11 +96,11 @@ export default function ProfileDrawer({
                       <div className="relative mt-6 flex-1 px-4 sm:px-6">
                         <div className="flex flex-col items-center">
                           <div className="mb-2">
-                            {/* {data.isGroup ? (
+                            {data.isGroup ? (
                               <AvatarGroup users={data.users} />
-                            ) : ( */}
-                            <Avatar user={otherUser} />
-                            {/* )} */}
+                            ) : (
+                              <Avatar user={otherUser} />
+                            )}
                           </div>
                           <div>{title}</div>
                           <div className="text-sm text-gray-500">

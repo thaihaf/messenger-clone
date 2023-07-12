@@ -1,5 +1,5 @@
 "use client";
-import Avatar from "@/components/Avatar/Avatar";
+import Avatar from "@/components/Avatars/Avatar";
 import { Paths } from "@/constants/paths";
 import useOtherUser from "@/hooks/useOtherUser";
 import { Conversation, User } from "@prisma/client";
@@ -7,6 +7,8 @@ import Link from "next/link";
 import React, { useMemo, useState } from "react";
 import { HiChevronLeft, HiEllipsisHorizontal } from "react-icons/hi2";
 import ProfileDrawer from "./ProfileDrawer";
+import AvatarGroup from "@/components/Avatars/AvatarGroup";
+import useActiveList from "@/hooks/useActiveList";
 
 interface HeaderProps {
   conversation: Conversation & {
@@ -16,15 +18,16 @@ interface HeaderProps {
 
 export default function Header({ conversation }: HeaderProps) {
   const otherUser = useOtherUser(conversation);
-
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { members } = useActiveList();
+  const isActive = members.indexOf(otherUser?.email!) !== -1;
 
   const statusText = useMemo(() => {
     if (conversation.isGroup) {
       return `${conversation.users.length} members`;
     }
-    return "Active";
-  }, [conversation]);
+    return isActive ? "Active" : "Offline";
+  }, [conversation, isActive]);
 
   return (
     <>
@@ -64,7 +67,11 @@ export default function Header({ conversation }: HeaderProps) {
             <HiChevronLeft size={32} />
           </Link>
 
-          <Avatar user={otherUser} />
+          {conversation.isGroup ? (
+            <AvatarGroup users={conversation.users} />
+          ) : (
+            <Avatar user={otherUser} />
+          )}
 
           <div className="flex flex-col">
             <div className="">{conversation?.name || otherUser?.name}</div>

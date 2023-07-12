@@ -1,3 +1,4 @@
+import { pusherServer } from "./../../../libs/pusher";
 import getCurrentUser from "@/actions/getCurrentUser";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
@@ -57,6 +58,21 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       },
     });
 
+    await pusherServer.trigger(currentUser.email, "conversation:update", {
+      id: conversation.id,
+      messages: [updateMessage],
+    });
+
+    if (lastMessage.seenIds.indexOf(currentUser.id) !== -1) {
+      return NextResponse.json(conversation);
+    }
+
+    await pusherServer.trigger(
+      conversationId!,
+      "message:update",
+      updateMessage
+    );
+    
     return NextResponse.json(updateMessage);
   } catch (error: any) {
     return new NextResponse("Internal error", { status: 500 });
