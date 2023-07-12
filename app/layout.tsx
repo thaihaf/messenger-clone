@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import logoImage from "public/image/logo.png";
 import ToasterContext from "./context/ToasterContext";
 import AuthContext from "./context/AuthContext";
+import ActiveStatus from "./components/Sidebar/ActiveStatus";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthContext>
           <ToasterContext />
+          <ActiveStatus />
           {children}
         </AuthContext>
       </body>
